@@ -118,20 +118,4 @@ public class Actor implements Serializable {
 
 		return filmActor;
 	}
-
-	@Transient
-	@Autowired
-	private Validator validator;
-	
-	public Set<ConstraintViolation<Actor>> validate() {
-		return validator.validate(this);
-	}
-	public boolean isValid() {
-		return validate().size() == 0;
-	}
-
-	public boolean notIsValid() {
-		return !isValid();
-	}
-
 }

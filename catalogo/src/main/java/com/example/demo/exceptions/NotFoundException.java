@@ -1,26 +1,25 @@
 package com.example.demo.exceptions;
 
 public class NotFoundException extends Exception {
-	private static final long serialVersionUID = 1L;
 
 	public NotFoundException() {
 		this("NOT FOUND");
 	}
 
-	public NotFoundException(String message) {
-		super(message);
+	public NotFoundException(String arg0) {
+		super(arg0);
 	}
 
-	public NotFoundException(Throwable cause) {
-		super("NOT FOUND", cause);
+	public NotFoundException(Throwable arg0) {
+		this("NOT FOUND", arg0);
 	}
 
-	public NotFoundException(String message, Throwable cause) {
-		super(message, cause);
+	public NotFoundException(String arg0, Throwable arg1) {
+		super(arg0, arg1);
 	}
 
-	public NotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-		super(message, cause, enableSuppression, writableStackTrace);
+	public NotFoundException(String arg0, Throwable arg1, boolean arg2, boolean arg3) {
+		super(arg0, arg1, arg2, arg3);
 	}
 
 }

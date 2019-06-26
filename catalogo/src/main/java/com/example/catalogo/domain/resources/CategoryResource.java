@@ -96,7 +96,7 @@ public class CategoryResource {
 		if (notIsValid(item))
 			throw new InvalidDataException("Invalid");
 		if (!dao.findById(item.getCategoryId()).isPresent())
-			throw new InvalidDataException("Missing item");
+			throw new NotFoundException("Missing item");
 		if (item.getCategoryId() != id)
 			throw new BadRequestException("No coinciden los ID");
 		dao.save(item);

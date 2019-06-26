@@ -22,7 +22,7 @@ public class FilmCategory implements Serializable {
 	private Timestamp lastUpdate;
 
 	//bi-directional many-to-one association to Category
-	@ManyToOne
+	@ManyToOne()
 	@JoinColumn(name="category_id", insertable=false, updatable=false)
 	private Category category;
 

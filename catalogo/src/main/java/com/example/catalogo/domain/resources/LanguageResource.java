@@ -104,7 +104,7 @@ public class LanguageResource {
 		if (notIsValid(item))
 			throw new InvalidDataException("Invalid");
 		if (!dao.findById(item.getLanguageId()).isPresent())
-			throw new InvalidDataException("Missing item");
+			throw new NotFoundException();
 		if (item.getLanguageId() != id)
 			throw new BadRequestException("No coinciden los ID");
 		dao.save(item);

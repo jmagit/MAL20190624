@@ -105,7 +105,7 @@ public class ActorResource {
 		if (notIsValid(rslt))
 			throw new InvalidDataException("Invalid");
 		if (!dao.findById(item.getActorId()).isPresent())
-			throw new InvalidDataException("Missing item");
+			throw new NotFoundException();
 		if (item.getActorId() != id)
 			throw new BadRequestException("No coinciden los ID");
 		dao.save(rslt);

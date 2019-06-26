@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.catalogo.application.dtos.ActorDTO;
+import com.example.catalogo.application.dtos.FilmDetailsDTO;
 import com.example.catalogo.application.dtos.FilmEditDTO;
 import com.example.catalogo.application.dtos.FilmShortDTO;
 import com.example.catalogo.domain.entities.Category;
@@ -38,7 +39,14 @@ import com.example.demo.exceptions.BadRequestException;
 import com.example.demo.exceptions.InvalidDataException;
 import com.example.demo.exceptions.NotFoundException;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ApiResponse;
+
 @RestController
+@Api(value = "/peliculas", description = "Mantenimiento de peliculas", produces = "application/json, application/xml", consumes="application/json, application/xml")
 @RequestMapping(path = "/peliculas")
 public class FilmResource {
 	@Autowired
@@ -58,44 +66,79 @@ public class FilmResource {
 		return !isValid(item);
 	}
 
+	@ApiOperation(value = "Listado de las peliculas")
 	@GetMapping
 	public Page<Film> getAll(Pageable pageable) {
 		return dao.findAll(pageable);
 	}
-	@GetMapping("/minimo")
+	@ApiOperation(value = "Listado con la versión mínima de las peliculas")
+	@GetMapping(params = "mode=short")
 	public List<FilmShortDTO> getAll() {
 		return dao.findAll().stream()
 				.map(item-> FilmShortDTO.from(item))
 				.collect(Collectors.toList());
 	}
-	@GetMapping(path = "/minimo/{id}")
-	public FilmShortDTO getOneCorto(@PathVariable int id) throws Exception {
+	@GetMapping(path = "/{id}", params = "mode=short")
+	@ApiOperation(value = "Recupera la versión mínima de una pelicula")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "Pelicula encontrada"),
+		@ApiResponse(code = 404, message = "Pelicula no encontrada")
+	})
+	public FilmShortDTO getOneCorto(
+			@ApiParam(value = "Identificador de la pelicula", required = true) @PathVariable int id) throws Exception {
 		Optional<Film> rslt = dao.findById(id);
 		if (!rslt.isPresent())
 			throw new NotFoundException();
 		return FilmShortDTO.from(rslt.get());
 	}
 
+	@ApiOperation(value = "Recupera la versión completa de una pelicula")
+	@GetMapping(path = "/{id}", params = "mode=details")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "Pelicula encontrada"),
+		@ApiResponse(code = 404, message = "Pelicula no encontrada")
+	})
+	public FilmDetailsDTO getOneDetalle(@ApiParam(value = "Identificador de la pelicula", required = true) @PathVariable int id) throws Exception {
+		Optional<Film> rslt = dao.findById(id);
+		if (!rslt.isPresent())
+			throw new NotFoundException();
+		return FilmDetailsDTO.from(rslt.get());
+	}
+	@ApiOperation(value = "Recupera la versión editable de una pelicula")
 	@GetMapping(path = "/{id}")
-	public FilmEditDTO getOne(@PathVariable int id) throws Exception {
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "Pelicula encontrada"),
+		@ApiResponse(code = 404, message = "Pelicula no encontrada")
+	})
+	public FilmEditDTO getOne(@ApiParam(value = "Identificador de la pelicula", required = true) @PathVariable int id) throws Exception {
 		Optional<Film> rslt = dao.findById(id);
 		if (!rslt.isPresent())
 			throw new NotFoundException();
 		return FilmEditDTO.from(rslt.get());
 	}
 
+	@ApiOperation(value = "Listado de los actores de la pelicula")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "Pelicula encontrada"),
+		@ApiResponse(code = 404, message = "Pelicula no encontrada")
+	})
 	@GetMapping(path = "/{id}/reparto")
 	@Transactional
-	public List<ActorDTO> getFilms(@PathVariable int id) throws Exception {
+	public List<ActorDTO> getFilms(@ApiParam(value = "Identificador de la pelicula", required = true) @PathVariable int id) throws Exception {
 		Optional<Film> rslt = dao.findById(id);
 		if (!rslt.isPresent())
 			throw new NotFoundException();
 		return rslt.get().getFilmActors().stream().map(item -> ActorDTO.from(item.getActor()))
 				.collect(Collectors.toList());
 	}
+	@ApiOperation(value = "Listado de las categorias de la pelicula")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "Pelicula encontrada"),
+		@ApiResponse(code = 404, message = "Pelicula no encontrada")
+	})
 	@GetMapping(path = "/{id}/categorias")
 	@Transactional
-	public List<Category> getCategories(@PathVariable int id) throws Exception {
+	public List<Category> getCategories(@ApiParam(value = "Identificador de la pelicula", required = true) @PathVariable int id) throws Exception {
 		Optional<Film> rslt = dao.findById(id);
 		if (!rslt.isPresent())
 			throw new NotFoundException();
@@ -103,6 +146,7 @@ public class FilmResource {
 				.collect(Collectors.toList());
 	}
 
+	@ApiOperation(value = "Añadir una nueva pelicula")
 	@PostMapping
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public ResponseEntity<Object> add(@Valid @RequestBody FilmEditDTO item) throws Exception {
@@ -117,26 +161,40 @@ public class FilmResource {
 		return ResponseEntity.created(location).build();
 	}
 
+	@ApiOperation(value = "Modificar una pelicula existente", notes = "Los identificadores deben coincidir")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "Pelicula encontrada"),
+		@ApiResponse(code = 404, message = "Pelicula no encontrada")
+	})
+	@Transactional
 	@PutMapping(path = "/{id}")
-	public FilmEditDTO change(@PathVariable int id, @Valid @RequestBody FilmEditDTO item) throws Exception {
-		Film rslt = dao.save(FilmEditDTO.from(item));
+	public FilmEditDTO change(
+			@ApiParam(value = "Identificador de la pelicula", required = true) @PathVariable int id, 
+			@Valid @RequestBody FilmEditDTO item) throws Exception {
+		Film rslt = FilmEditDTO.from(item);
 		if (notIsValid(rslt))
 			throw new InvalidDataException("Invalid");
-		if (dao.findById(item.getFilmId()).isPresent())
-			throw new InvalidDataException("Missing item");
 		if (item.getFilmId() != id)
 			throw new BadRequestException("No coinciden los ID");
-		dao.save(rslt);
-		return FilmEditDTO.from(dao.save(FilmEditDTO.from(item)));
+		Optional<Film> act = dao.findById(item.getFilmId());
+		if (!act.isPresent())
+			throw new NotFoundException("Missing item");
+		return FilmEditDTO.from(dao.save(item.update(act.get())));
 	}
 
+	@ApiOperation(value = "Borrar una pelicula existente")
+	@ApiResponses({
+		@ApiResponse(code = 200, message = "Pelicula encontrada"),
+		@ApiResponse(code = 404, message = "Pelicula no encontrada")
+	})
 	@DeleteMapping(path = "/{id}")
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
-	public void delete(@PathVariable int id) throws Exception {
+	public void delete(
+			@ApiParam(value = "Identificador de la pelicula", required = true) @PathVariable int id) throws Exception {
 		try {
 			dao.deleteById(id);
 		} catch (Exception e) {
-			throw new InvalidDataException("Missing item", e);
+			throw new NotFoundException("Missing item", e);
 		}
 	}
 

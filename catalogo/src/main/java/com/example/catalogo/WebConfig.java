@@ -16,7 +16,6 @@ import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
 @Configuration 
-@EnableWebMvc
 public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -30,11 +29,12 @@ public class WebConfig implements WebMvcConfigurer {
 	public Docket api() {                
 	    return new Docket(DocumentationType.SWAGGER_2)          
 	      .select()
-	      .apis(RequestHandlerSelectors.basePackage("com.example.demo"))
+	      .apis(RequestHandlerSelectors.basePackage("com.example.catalogo.domain.resources"))
 	      .paths(PathSelectors.ant("/**"))
 	      .build()
 	      .apiInfo(new ApiInfoBuilder()
-	                .title("Mis microservicios")
+	                .title("Microservicio: Catalogo de peliculas")
+	                .description("Ejemplo de Microservicio utilizando la base de datos Sakila.")
 	                .version("1.0")
 	                .license("Apache License Version 2.0")
 	                .contact(new Contact("Yo Mismo", "http://www.example.com", "myeaddress@example.com"))
