@@ -40,7 +40,8 @@ public class WebConfig implements WebMvcConfigurer {
 	                .contact(new Contact("Yo Mismo", "http://www.example.com", "myeaddress@example.com"))
 	                .build());
 	}
-	@Bean public RestTemplate restTemplate(RestTemplateBuilder builder) {
+	@Bean 
+	public RestTemplate restTemplate(RestTemplateBuilder builder) {
 		return builder.build();
 	}
 

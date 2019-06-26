@@ -8,7 +8,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.example.escenarios.dtos.MessageDTO;
+import com.example.amqp.dtos.MessageDTO;
 import com.example.escenarios.servicios.StoreMessages;
 
 import org.springframework.amqp.core.Queue;
@@ -58,15 +58,6 @@ public class WebConfig implements WebMvcConfigurer {
 	@Bean
 	public Queue myQueue() {
 		return new Queue("mi-cola");
-	}
-
-	@Autowired
-	StoreMessages lista;
-	
-	@RabbitListener(queues = "mi-cola")
-	public void recive(MessageDTO inMsg) {
-		lista.add(inMsg.getMsg(), inMsg.getEnviado());
-		
 	}
 
 }

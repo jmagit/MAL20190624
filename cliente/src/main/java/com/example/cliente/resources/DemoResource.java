@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.example.amqp.dtos.MessageDTO;
 import com.example.cliente.dto.FilmDTO;
-import com.example.cliente.dto.MessageDTO;
 
 @RestController
 @RequestMapping(path = "/demos")
@@ -59,10 +59,4 @@ public class DemoResource {
 				FilmDTO.class, id);
 	}
 	
-	@GetMapping(path="/servidor") 
-	public String getServidor() {
-		return srv.getForObject("http://ESCENARIOS-SERVICE/identificacion", 
-				String.class);
-	}
-
 }
