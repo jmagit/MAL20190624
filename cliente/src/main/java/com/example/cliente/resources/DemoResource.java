@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.example.amqp.dtos.MessageDTO;
+import com.example.cliente.dto.ActorDTO;
 import com.example.cliente.dto.FilmDTO;
+import com.example.cliente.proxies.ActoresProxy;
 
 @RestController
 @RequestMapping(path = "/demos")
@@ -59,4 +61,18 @@ public class DemoResource {
 				FilmDTO.class, id);
 	}
 	
+	@GetMapping(path = "/balancea") 
+	public String getInstancia() {
+		return srv.getForObject("http://ESCENARIOS-SERVICE/mensajes", 
+				String.class);
+	}
+	
+	@Autowired
+	private ActoresProxy proxy;
+	
+	@GetMapping(path = "/actor") 
+	public List<ActorDTO> getdemoFeing() {
+		//proxy.add(new ActorDTO(999, "Pepito", "Grillo"));
+		return proxy.getAll().getContent();
+	}
 }
