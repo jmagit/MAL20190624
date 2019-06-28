@@ -72,7 +72,8 @@ public class DemoResource {
 	
 	@GetMapping(path = "/actor") 
 	public List<ActorDTO> getdemoFeing() {
-		//proxy.add(new ActorDTO(999, "Pepito", "Grillo"));
+		proxy.add(new ActorDTO(0, "Otro", "Mas"));
+		proxy.delete(225);
 		return proxy.getAll().getContent();
 	}
 }
