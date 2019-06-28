@@ -1,0 +1,9 @@
+package com.example.escenarios.dtos;
+
+import lombok.Value;
+
+@Value
+public class FilmDTO {
+	private int filmId;
+	private String title;	
+}

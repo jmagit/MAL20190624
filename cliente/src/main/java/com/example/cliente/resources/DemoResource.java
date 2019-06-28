@@ -1,9 +1,11 @@
 package com.example.cliente.resources;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -20,6 +22,7 @@ import com.example.amqp.dtos.MessageDTO;
 import com.example.cliente.dto.ActorDTO;
 import com.example.cliente.dto.FilmDTO;
 import com.example.cliente.proxies.ActoresProxy;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 
 @RestController
 @RequestMapping(path = "/demos")
@@ -47,14 +50,19 @@ public class DemoResource {
 	private RestTemplate srv;
 	
 	@GetMapping(path="/peliculas") 
+	@HystrixCommand(fallbackMethod = "getPeliculasFallback")
 	public List<FilmDTO> getPeliculas() {
-		ResponseEntity<List<FilmDTO>> response = srv.exchange("http://CATALOGO-SERVICE/peliculas?mode=short", 
+		ResponseEntity<List<FilmDTO>> response = srv.exchange("http://ESCENARIOS-SERVICE/peliculas", 
 				HttpMethod.GET,
 				HttpEntity.EMPTY, 
 				new ParameterizedTypeReference<List<FilmDTO>>() {
 				});
 		return response.getBody();
 	}
+	private List<FilmDTO> getPeliculasFallback() {
+		return new ArrayList<FilmDTO>();
+	}
+
 	@GetMapping(path="/peliculas/{id}") 
 	public FilmDTO getPeliculas(@PathVariable int id) {
 		return srv.getForObject("http://CATALOGO-SERVICE/peliculas/{id}?mode=short", 
@@ -76,4 +84,14 @@ public class DemoResource {
 		proxy.delete(225);
 		return proxy.getAll().getContent();
 	}
+
+	@Value("${mi.valor}")
+	private String configVal;
+	
+	@GetMapping(path="/valor") 
+	public String getValor() {
+		return configVal;
+	}
+
+	
 }
